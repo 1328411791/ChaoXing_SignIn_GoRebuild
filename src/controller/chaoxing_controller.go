@@ -20,7 +20,7 @@ func NewChaoxingControllerController(dataSource *mysql.DataSouce, router *gin.En
 }
 
 func (this *ChaoxingController) RegisterRoutes(router *gin.Engine) {
-	router.GET("/login", this.login)
+	router.POST("/login", this.login)
 	router.POST("/activity", this.activity)
 	router.POST("/activityAll", this.activityAll)
 	router.POST("/qrcode", this.qrcode)
@@ -34,6 +34,11 @@ func (this *ChaoxingController) RegisterRoutes(router *gin.Engine) {
 
 // login 接口
 func (this *ChaoxingController) login(ctx *gin.Context) {
+	// 从parm中获取phone和password
+	phone, password := ctx.PostForm("phone"), ctx.PostForm("password")
+
+	// 调用service层的userLogin方法
+	// 未实现
 	log.Fatal("未实现")
 }
 
