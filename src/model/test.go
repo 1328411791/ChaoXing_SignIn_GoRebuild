@@ -1,7 +1,7 @@
 package model
 
 const (
-	PeopleTableName = "test"
+	TestTableName = "test"
 )
 
 type Test struct {
@@ -10,6 +10,6 @@ type Test struct {
 	Password int64  `gorm:"column:password"`
 }
 
-func (p *Test) TableName() string {
-	return PeopleTableName
+func (p *Test) TestTableName() string {
+	return TestTableName
 }
