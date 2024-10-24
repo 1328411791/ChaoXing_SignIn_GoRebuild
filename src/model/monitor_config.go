@@ -1,23 +1,25 @@
 package model
 
-// MonitorConfig
+// User
 const (
-	MonitorConfigTableName = "test"
+	UserTableName = "test"
 )
 
 /*
- delay: number;
-  lon: number;
-  lat: number;
-  address: string;
+  phone?: string;
+  params?: UserParams;
+  monitor?: MonitorConfig;
+  mailing?: MailConfig;
+  cqserver?: cqServerConfig;
+
 */
 
 type MonitorConfig struct {
-	ID       int64  `gorm:"column:id"`
-	Name     string `gorm:"column:name"`
-	Password int64  `gorm:"column:password"`
+	ID     int64  `gorm:"column:id"`
+	Phone  string `gorm:"column:phone"`
+	Params int64  `gorm:"column:password"`
 }
 
-func (p *Test) MonitorConfigTableName() string {
-	return MonitorConfigTableName
+func (p *Test) UserTableName() string {
+	return UserTableName
 }
