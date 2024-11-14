@@ -6,3 +6,8 @@ gfcli:
     build: "-a amd64 -s linux -p temp -ew"
     tagPrefixes:
       - my.image.pub/my-app
+  gen:
+    dao:
+      - link:            "mysql:root:Ab123456@tcp(127.0.0.1:3306)/chaoxing"
+        descriptionTag:  true
+        noModelComment:  true
