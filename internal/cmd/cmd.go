@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"ChaoXing_SignIn_GoRebuild/internal/controller/chaoxing"
 	"context"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -22,6 +23,13 @@ var (
 				group.Bind(
 					hello.NewV1(),
 				)
+			})
+			s.Group("/", func(group *ghttp.RouterGroup) {
+				group.Middleware(ghttp.MiddlewareHandlerResponse)
+				group.Bind(
+					chaoxing.NewV1(),
+				)
+
 			})
 			s.Run()
 			return nil
