@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func UserLogin(username string, password string) (map[string]interface{}, error) {
+func ChaoxingUserLogin(username string, password string) (map[string]interface{}, error) {
 	// 将key转换为byte数组
 	key := []byte("u2oh6Vu^")
 	// 使用DES算法加密密码

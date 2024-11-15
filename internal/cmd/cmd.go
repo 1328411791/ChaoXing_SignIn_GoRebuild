@@ -22,14 +22,8 @@ var (
 				group.Middleware(ghttp.MiddlewareHandlerResponse)
 				group.Bind(
 					hello.NewV1(),
+					chaoxing.NewV1(), // 超星相关路由
 				)
-			})
-			s.Group("/", func(group *ghttp.RouterGroup) {
-				group.Middleware(ghttp.MiddlewareHandlerResponse)
-				group.Bind(
-					chaoxing.NewV1(),
-				)
-
 			})
 			s.Run()
 			return nil
