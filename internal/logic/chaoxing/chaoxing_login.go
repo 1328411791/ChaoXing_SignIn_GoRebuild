@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func ChaoxingUserLogin(username string, password string) (map[string]interface{}, error) {
+func ChaoxingUserLogin(username string, password string) ([]string, error) {
 	// 将key转换为byte数组
 	key := []byte("u2oh6Vu^")
 	// 使用DES算法加密密码
@@ -29,7 +29,7 @@ func ChaoxingUserLogin(username string, password string) (map[string]interface{}
 	return cookies, nil
 }
 
-func doLogin(uname, password string) (map[string]interface{}, error) {
+func doLogin(uname, password string) ([]string, error) {
 	formData := fmt.Sprintf("uname=%s&password=%s&fid=-1&t=true&refer=https%%3A%%2F%%2Fi.chaoxing.com&forbidotherlogin=0&validate=", uname, password)
 	req, err := http.NewRequest(LOGIN.METHOD, LOGIN.URL, strings.NewReader(formData))
 	if err != nil {
@@ -63,31 +63,12 @@ func doLogin(uname, password string) (map[string]interface{}, error) {
 		if cookies == nil {
 			fmt.Println("网络异常，换个环境重试")
 			// 返回异常信息
-			return nil, nil
+			return nil, fmt.Errorf("网络异常，换个环境重试")
 		}
 
-		cookieMap := make(map[string]string)
-		for _, cookie := range cookies {
-			equalIndex := strings.Index(cookie, "=")
-			semiIndex := strings.Index(cookie, ";")
-			itemName := cookie[:equalIndex]
-			itemValue := cookie[equalIndex+1 : semiIndex]
-			cookieMap[itemName] = itemValue
-		}
-
-		// 假设这里有默认参数，实际情况中你需要根据具体情况设置
-		defaultParams := make(map[string]interface{})
-		loginResult := make(map[string]interface{})
-		for k, v := range defaultParams {
-			loginResult[k] = v
-		}
-		for k, v := range cookieMap {
-			loginResult[k] = v
-		}
-
-		return loginResult, nil
+		return cookies, nil
 	} else {
 		fmt.Println("登录失败")
-		return nil, nil
+		return nil, fmt.Errorf("登录失败")
 	}
 }

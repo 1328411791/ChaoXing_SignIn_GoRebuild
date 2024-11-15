@@ -1,15 +1,15 @@
-package chaoxing
+package service
 
 import (
 	"ChaoXing_SignIn_GoRebuild/internal/dao"
-	"ChaoXing_SignIn_GoRebuild/internal/service"
+	"ChaoXing_SignIn_GoRebuild/internal/logic/chaoxing"
 	"encoding/json"
 )
 
 type SChaoxing struct{}
 
 func init() {
-	service.RegisterChaoxing(New())
+	RegisterChaoxing(New())
 }
 
 func New() *SChaoxing {
@@ -19,7 +19,7 @@ func New() *SChaoxing {
 func (s *SChaoxing) UserLogin(phone string, password string) (err error) {
 	// 登录获取cookie
 
-	login, err := ChaoxingUserLogin(phone, password)
+	login, err := chaoxing.ChaoxingUserLogin(phone, password)
 	if err != nil {
 		return err
 	}
@@ -59,4 +59,10 @@ func (s *SChaoxing) UserLogin(phone string, password string) (err error) {
 	}
 
 	return nil
+}
+
+func (s *SChaoxing) GetCourses() (chaoxing.CourseType, error) {
+	// 从数据库读取cookies
+	// dao.ChaoxingUser.DB().Model().Where()
+	return nil, nil
 }
