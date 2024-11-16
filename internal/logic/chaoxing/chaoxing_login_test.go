@@ -1,6 +1,8 @@
 package chaoxing
 
-import "testing"
+import (
+	"testing"
+)
 
 // TestLogin 测试登录接口
 func TestLogin(t *testing.T) {
@@ -50,11 +52,13 @@ func TestGetActiveByCourses(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	active, err := GetActive(courses[0], cookies)
+
+	allActive, err := GetAllActive(courses, cookies)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Log(active)
+	t.Log(allActive)
 
 }
