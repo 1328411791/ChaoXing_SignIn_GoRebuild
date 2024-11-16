@@ -24,8 +24,6 @@ func ChaoxingUserLogin(username string, password string) ([]string, error) {
 
 	cookies, err := doLogin(username, password)
 
-	println(cookies)
-
 	return cookies, nil
 }
 
@@ -64,6 +62,12 @@ func doLogin(uname, password string) ([]string, error) {
 			fmt.Println("网络异常，换个环境重试")
 			// 返回异常信息
 			return nil, fmt.Errorf("网络异常，换个环境重试")
+		}
+
+		// 处理cookies，只保留参数名和参数值
+		for i, cookie := range cookies {
+			cookie = strings.Split(cookie, ";")[0]
+			cookies[i] = cookie
 		}
 
 		return cookies, nil

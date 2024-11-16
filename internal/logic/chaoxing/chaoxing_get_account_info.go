@@ -2,7 +2,8 @@ package chaoxing
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -35,9 +36,10 @@ func doGetAccountInfo(cookies []string) (*[]AccountInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8;")
-	req.Header.Set("Accept-Encoding", "gzip, deflate")
-	req.Header.Set("Cookie", strings.Join(cookies, ";"))
+
+	req.Header.Add("Cookie", strings.Join(cookies, ";"))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("User-Agent", "Apifox/1.0.0 (https://apifox.com)")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -52,25 +54,14 @@ func doGetAccountInfo(cookies []string) (*[]AccountInfo, error) {
 		return nil, err
 	}
 
+	if resp.StatusCode == 302 {
+		return nil, gerror.NewCode(gcode.CodeNotImplemented)
+	}
+
 	var result map[string]interface{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
-	}
-
-	if status, ok := result["status"].(bool); ok && status {
-		fmt.Println("登录成功")
-		cookies := resp.Header["Set-Cookie"]
-		if cookies == nil {
-			fmt.Println("网络异常，换个环境重试")
-			// 返回异常信息
-			return nil, fmt.Errorf("网络异常，换个环境重试")
-		}
-
-		return nil, nil
-	} else {
-		fmt.Println("登录失败")
-		return nil, fmt.Errorf("登录失败")
 	}
 
 	return nil, nil

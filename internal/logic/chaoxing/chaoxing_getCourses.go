@@ -2,12 +2,13 @@ package chaoxing
 
 import (
 	"fmt"
+	"golang.org/x/net/html"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-func GetCourses(cookies []string) error {
+func GetCourses(cookies []string) ([]CourseType, error) {
 	// cookies参数只要_uid _d vc3 三个就可以了
 	var selectCookie []string
 
@@ -19,41 +20,102 @@ func GetCourses(cookies []string) error {
 		}
 	}
 
-	doGetCourses(selectCookie)
-	return nil
+	coursesByte, err := doGetCourses(selectCookie)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	// 解析html 获取courseId,clazzId，personId id
+	courses, err := extractCourses(coursesByte)
+
+	return courses, nil
 }
 
 type CourseType struct {
 	courseId string
-	classId  string
+	clazzId  string
+	personId string
+	id       string
 }
 
-func doGetCourses(cookies []string) (*[]CourseType, error) {
-	formData := fmt.Sprintf("courseType=1&courseFolderId=0&courseFolderSize=0")
-	req, err := http.NewRequest(COURSELIST.METHOD, COURSELIST.URL, strings.NewReader(formData))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8;")
-	req.Header.Set("Accept-Encoding", "gzip, deflate")
-	req.Header.Set("Cookie", strings.Join(cookies, ";"))
+func doGetCourses(cookies []string) ([]byte, error) {
+	payload := strings.NewReader("courseType=1&courseFolderId=0&courseFolderSize=0")
+
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	req, err := http.NewRequest(COURSELIST.METHOD, COURSELIST.URL, payload)
+
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
+	req.Header.Add("Cookie", strings.Join(cookies, ";"))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("User-Agent", "Apifox/1.0.0 (https://apifox.com)")
 
-	defer resp.Body.Close()
-	// 获取cookie
-
-	body, err := ioutil.ReadAll(resp.Body)
+	res, err := client.Do(req)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
+	defer res.Body.Close()
 
-	var result string = string(body)
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	// fmt.Println(string(body))
 
-	fmt.Println(result)
+	return body, nil
+}
 
-	return nil, nil
+func extractCourses(htmlByte []byte) ([]CourseType, error) {
+
+	// 解析HTML
+	doc, err := html.Parse(strings.NewReader(string(htmlByte)))
+
+	// 定义一个切片来存储提取的数据
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var courses []CourseType
+	var parseNode func(*html.Node)
+	parseNode = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "li" {
+			// 输出节点的属性
+			var course CourseType
+			var flag = false
+			// 查找属性
+			for _, attr := range n.Attr {
+				if attr.Key == "class" && attr.Val == "course clearfix" {
+					flag = true
+				}
+				if attr.Key == "courseid" {
+					course.courseId = attr.Val
+				}
+				if attr.Key == "clazzid" {
+					course.clazzId = attr.Val
+				}
+				if attr.Key == "personid" {
+					course.personId = attr.Val
+				}
+				if attr.Key == "id" {
+					course.id = attr.Val
+				}
+			}
+			if course.courseId != "" && course.clazzId != "" && flag == true {
+				courses = append(courses, course)
+			}
+		}
+
+		// 递归遍历子节点
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			parseNode(c)
+		}
+	}
+
+	// 从文档根节点开始解析
+	parseNode(doc)
+	return courses, nil
 }
