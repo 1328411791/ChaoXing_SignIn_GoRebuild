@@ -74,7 +74,7 @@ func (s *SChaoxing) GetCourses(userId int) (*chaoxing.CourseType, error) {
 }
 
 func getCookies4Id(id int) ([]string, error) {
-	one, err := dao.ChaoxingUser.DB().Model("chaoxing_user").Where("id=?", id).One()
+	one, err := dao.ChaoxingUser.DB().Model("chaoxing_user").WherePri(id).One()
 	if err != nil {
 		return nil, err
 	}

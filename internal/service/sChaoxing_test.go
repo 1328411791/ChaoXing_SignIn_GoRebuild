@@ -7,6 +7,7 @@ import (
 )
 
 func Test_Trim(t *testing.T) {
+
 	gtest.C(t, func(t *gtest.T) {
 		Chaoxing().GetCourses(3)
 	})

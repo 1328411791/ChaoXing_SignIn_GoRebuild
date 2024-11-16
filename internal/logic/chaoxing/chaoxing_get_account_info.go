@@ -1,13 +1,14 @@
 package chaoxing
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-func GetCourses(cookies []string) error {
+func GetAccountInfo(cookies []string) error {
 	// cookies参数只要_uid _d vc3 三个就可以了
 	var selectCookie []string
 
@@ -19,18 +20,18 @@ func GetCourses(cookies []string) error {
 		}
 	}
 
-	doGetCourses(selectCookie)
+	doGetAccountInfo(selectCookie)
 	return nil
 }
 
-type CourseType struct {
+type AccountInfo struct {
 	courseId string
 	classId  string
 }
 
-func doGetCourses(cookies []string) (*[]CourseType, error) {
-	formData := fmt.Sprintf("courseType=1&courseFolderId=0&courseFolderSize=0")
-	req, err := http.NewRequest(COURSELIST.METHOD, COURSELIST.URL, strings.NewReader(formData))
+func doGetAccountInfo(cookies []string) (*[]AccountInfo, error) {
+
+	req, err := http.NewRequest(ACCOUNTMANAGE.METHOD, ACCOUNTMANAGE.URL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -51,9 +52,26 @@ func doGetCourses(cookies []string) (*[]CourseType, error) {
 		return nil, err
 	}
 
-	var result string = string(body)
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
 
-	fmt.Println(result)
+	if status, ok := result["status"].(bool); ok && status {
+		fmt.Println("登录成功")
+		cookies := resp.Header["Set-Cookie"]
+		if cookies == nil {
+			fmt.Println("网络异常，换个环境重试")
+			// 返回异常信息
+			return nil, fmt.Errorf("网络异常，换个环境重试")
+		}
+
+		return nil, nil
+	} else {
+		fmt.Println("登录失败")
+		return nil, fmt.Errorf("登录失败")
+	}
 
 	return nil, nil
 }
