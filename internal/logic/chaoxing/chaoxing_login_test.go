@@ -23,15 +23,38 @@ func TestGetCourses(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(courses)
+	// 检查返回的课程列表是否为空
+	if len(courses) == 0 {
+		t.Fatal("返回的课程列表为空")
+	}
 }
 
 // TestAccountInfo 测试获取账号信息接口
 func TestGetCoursesByCourses(t *testing.T) {
 	t.Log("测试获取账号信息接口")
+	_, err := ChaoxingUserLogin("18902833039", "Yu20030405")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+}
+
+// TestGetActiveByCourses 测试获取活动信息接口
+func TestGetActiveByCourses(t *testing.T) {
+	t.Log("测试获取活动信息接口")
 	cookies, err := ChaoxingUserLogin("18902833039", "Yu20030405")
 	if err != nil {
 		t.Fatal(err)
 	}
-	GetAccountInfo(cookies)
+	courses, err := GetCourses(cookies)
+	if err != nil {
+		t.Fatal(err)
+	}
+	active, err := GetActive(courses[0], cookies)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(active)
+
 }

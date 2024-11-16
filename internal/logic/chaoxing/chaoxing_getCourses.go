@@ -3,8 +3,6 @@ package chaoxing
 import (
 	"fmt"
 	"golang.org/x/net/html"
-	"io/ioutil"
-	"net/http"
 	"strings"
 )
 
@@ -41,30 +39,11 @@ type CourseType struct {
 func doGetCourses(cookies []string) ([]byte, error) {
 	payload := strings.NewReader("courseType=1&courseFolderId=0&courseFolderSize=0")
 
-	client := &http.Client{}
-	req, err := http.NewRequest(COURSELIST.METHOD, COURSELIST.URL, payload)
+	body, err := getPost(COURSELIST.METHOD, COURSELIST.URL, payload, cookies)
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
-	req.Header.Add("Cookie", strings.Join(cookies, ";"))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("User-Agent", "Apifox/1.0.0 (https://apifox.com)")
-
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	// fmt.Println(string(body))
 
 	return body, nil
 }
