@@ -9,7 +9,7 @@ import (
 )
 
 func GetCourses(cookies []string) error {
-
+	doGetCourses(cookies)
 	return nil
 }
 
@@ -18,7 +18,7 @@ type CourseType struct {
 	classId  string
 }
 
-func doGetCourses(cookies []string) ([]CourseType, error) {
+func doGetCourses(cookies []string) (*[]CourseType, error) {
 	formData := fmt.Sprintf("courseType=1&courseFolderId=0&courseFolderSize=0")
 	req, err := http.NewRequest(COURSELIST.METHOD, COURSELIST.URL, strings.NewReader(formData))
 	if err != nil {

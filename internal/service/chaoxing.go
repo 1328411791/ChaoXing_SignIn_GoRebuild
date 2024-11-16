@@ -5,7 +5,7 @@ import "ChaoXing_SignIn_GoRebuild/internal/logic/chaoxing"
 type (
 	IChaoxing interface {
 		UserLogin(phone string, password string) (err error)
-		GetCourses() (chaoxing.CourseType, error)
+		GetCourses(userId int) (*chaoxing.CourseType, error)
 	}
 )
 

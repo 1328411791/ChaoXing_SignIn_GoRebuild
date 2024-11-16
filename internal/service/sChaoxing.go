@@ -61,8 +61,34 @@ func (s *SChaoxing) UserLogin(phone string, password string) (err error) {
 	return nil
 }
 
-func (s *SChaoxing) GetCourses() (chaoxing.CourseType, error) {
+func (s *SChaoxing) GetCourses(userId int) (*chaoxing.CourseType, error) {
 	// 从数据库读取cookies
-	// dao.ChaoxingUser.DB().Model().Where()
+	cookies, err := getCookies4Id(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	chaoxing.GetCourses(cookies)
+
 	return nil, nil
+}
+
+func getCookies4Id(id int) ([]string, error) {
+	one, err := dao.ChaoxingUser.DB().Model("chaoxing_user").Where("id=?", id).One()
+	if err != nil {
+		return nil, err
+	}
+	if one == nil {
+		return nil, nil
+	}
+
+	cookiesJson := one["cookies"].String()
+
+	// 将str转化为string[]
+	var cookies []string
+	err = json.Unmarshal([]byte(cookiesJson), &cookies)
+	if err != nil {
+		return nil, err
+	}
+	return cookies, nil
 }
