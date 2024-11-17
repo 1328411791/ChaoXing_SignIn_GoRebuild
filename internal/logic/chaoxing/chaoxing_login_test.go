@@ -59,6 +59,17 @@ func TestGetActiveByCourses(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Log(allActive)
+	for key, activeMap := range allActive {
+		t.Log(key)
+		t.Log(activeMap.Active, activeMap.Course)
+		for _, active := range activeMap.Active {
+			sign, err := PreSign(activeMap.Course, active, cookies)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Log(sign)
+		}
+
+	}
 
 }

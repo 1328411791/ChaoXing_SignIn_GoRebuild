@@ -55,7 +55,7 @@ func doGetAccountInfo(cookies []string) (*[]AccountInfo, error) {
 	}
 
 	if resp.StatusCode == 302 {
-		return nil, gerror.NewCode(gcode.CodeNotImplemented)
+		return nil, gerror.NewCode(gcode.CodeNotAuthorized, "登录失败")
 	}
 
 	var result map[string]interface{}

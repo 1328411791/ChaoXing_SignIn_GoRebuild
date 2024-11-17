@@ -4,18 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/v2/os/gtime"
+	"strconv"
 	"sync"
 )
 
-func GetAllActive(courses []CourseType, cookies []string) (map[string]interface{}, error) {
-	var activeList map[string]interface{}
+func GetAllActive(courses []CourseType, cookies []string) (map[string]ActiveMap, error) {
+	activeList := make(map[string]ActiveMap)
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 
 	type result struct {
-		courseId string
-		actives  []ActiveType
-		err      error
+		course  CourseType
+		actives []ActiveType
+		err     error
 	}
 
 	resultChannel := make(chan result, len(courses))
@@ -26,7 +27,7 @@ func GetAllActive(courses []CourseType, cookies []string) (map[string]interface{
 			defer wg.Done()
 			actives, err := GetActive(course, cookies)
 			// 将结果发送到 channel
-			resultChannel <- result{courseId: course.courseId, actives: actives, err: err}
+			resultChannel <- result{course: course, actives: actives, err: err}
 		}(course)
 	}
 
@@ -39,7 +40,7 @@ func GetAllActive(courses []CourseType, cookies []string) (map[string]interface{
 	for res := range resultChannel {
 		if res.err == nil && len(res.actives) > 0 {
 			mu.Lock() // 锁住共享资源
-			activeList[res.courseId] = res.actives
+			activeList[res.course.courseId] = ActiveMap{Course: res.course, Active: res.actives}
 			mu.Unlock() // 解锁
 		}
 	}
@@ -80,6 +81,11 @@ func GetActive(course CourseType, cookies []string) ([]ActiveType, error) {
                 "nameFour": "11-13 21:11"
             },
 */
+
+type ActiveMap struct {
+	Active []ActiveType
+	Course CourseType
+}
 
 type ActiveType struct {
 	UserStatus int    `json:"userStatus"`
@@ -129,10 +135,14 @@ func doGetActive(course CourseType, cookies []string) ([]ActiveType, error) {
 			var active ActiveType
 			_ = json.Unmarshal(jsonStr, &active)
 
-			// 只添加在starttime和endtime之间的活动
-			nowTime := gtime.Now().Unix()
-			if active.StartTime <= nowTime && active.EndTime >= nowTime {
-				actives = append(actives, active)
+			// 一个月前的时间
+			lastMothTime := gtime.Now().AddDate(0, -1, 0).Unix() * 1000
+			otherId, _ := strconv.Atoi(active.OtherId)
+			if otherId >= 0 && otherId <= 5 && active.Status == 1 && active.OtherId != "" {
+				// 只放最近一个月的签到
+				if active.StartTime >= lastMothTime {
+					actives = append(actives, active)
+				}
 			}
 		}
 	}
