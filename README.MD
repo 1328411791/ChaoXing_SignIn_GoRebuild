@@ -1,4 +1,8 @@
-# GoFrame Template For SingleRepo
+# 超星学习通自动签到程序
 
-Quick Start: 
-- https://goframe.org/pages/viewpage.action?pageId=1114399
+# 配套app
+
+
+
+## 环境要求
+go
